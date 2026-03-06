@@ -1,0 +1,5 @@
+{
+  "name": "Manim Matrix Generator",
+  "description": "Generates production-grade Manim scripts from JSON input with a Hacker Matrix aesthetic.",
+  "requestFramePermissions": []
+}
