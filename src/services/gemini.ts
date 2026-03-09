@@ -26,10 +26,36 @@ export async function generateManimScript(jsonInput: string): Promise<string> {
 
     **Output Format:**
     -   Return ONLY the Python code.
-    -   Include all necessary imports (e.g., \`from manim import *\`).
-    -   Define a class that inherits from \`Scene\` (e.g., \`class MatrixScene(Scene):\`).
     -   Ensure the code is syntactically correct and runnable.
     -   Add comments explaining complex steps.
+    -   **CRITICAL: You MUST include the following exact lines at the very beginning of the script to configure the LaTeX environment for Chinese support and TinyTeX:**
+
+\`\`\`python
+import os
+from manim import *
+
+# 强制将 TinyTeX 加入当前运行环境
+# 请根据你解压后的实际子目录补全（比如后面可能还有 \\windows）
+os.environ["PATH"] += os.pathsep + r"C:\\Users\\mayic\\Downloads\\TinyTeX1\\TinyTeX\\bin"
+
+# 如果遇到 dvisvgm not found，请将 dvisvgm.exe 所在的具体路径也加入上面的 os.environ 中
+
+# 配置支持中文的 LaTeX 模板
+my_template = TexTemplate()
+my_template.add_to_preamble(r"\\usepackage{ctex}")
+# 如果有中文，请在后续的 Tex 或 MathTex 中使用 tex_template=my_template 和 tex_compiler="xelatex"
+\`\`\`
+
+    -   Define a class that inherits from \`Scene\` (e.g., \`class MatrixScene(Scene):\`).
+    -   **CRITICAL RULE FOR CLEARING SCENES:** When clearing the screen (e.g., between steps), DO NOT use \`self.play(FadeOut(*self.mobjects))\` blindly. If \`self.mobjects\` is empty, this will crash with \`ValueError: At least one mobject must be passed.\`. You MUST check if it's empty first:
+        \`\`\`python
+        if self.mobjects:
+            self.play(FadeOut(*self.mobjects))
+        \`\`\`
+    -   **CRITICAL RULE FOR CHINESE TEXT:** 
+        - If you use \`Tex()\` or \`MathTex()\`, you MUST pass \`tex_template=my_template\` and \`tex_compiler="xelatex"\`.
+        - If you use \`Text()\`, you MUST NOT pass \`tex_template\` or \`tex_compiler\` (these arguments are invalid for \`Text()\`). For \`Text()\`, just use the \`font\` argument (e.g., \`Text("中文", font="Microsoft YaHei")\`).
+        - Prefer using \`Tex()\` for Chinese text to ensure consistent rendering with the LaTeX template.
   `;
 
   try {
